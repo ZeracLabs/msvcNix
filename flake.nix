@@ -16,7 +16,12 @@
     {
       packages.${system} = {
         msvc-wine = pkgs.callPackage ./msvc-wine.nix { };
-        msvc-sdk = pkgs.callPackage ./. { msvc-wine = self.packages.${system}.msvc-wine; };
+        msvc-sdk = pkgs.callPackage ./msvc-sdk.nix { msvc-wine = self.packages.${system}.msvc-wine; };
+        clang-cl = pkgs.callPackage ./. {
+          msvc-sdk = self.packages.${system}.msvc-sdk;
+          msvc-wine = self.packages.${system}.msvc-wine;
+        };
+        default = self.packages.${system}.clang-cl;
       };
     };
 }

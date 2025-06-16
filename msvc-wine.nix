@@ -39,6 +39,10 @@ stdenvNoCC.mkDerivation {
 
     substituteInPlace "wrappers/wine-msvc.sh" \
       --replace-fail "\$(command -v wine64 || command -v wine || false)" ${lib.getExe wine64}
+
+    substituteInPlace "msvcenv-native.sh" \
+      --replace-fail "/usr/bin/env echo" "echo" \
+      --replace-fail "# lld-link, it's recommended to use -fuse-ld=lld.)" "set -euo pipefail"
   '';
 
   nativeBuildInputs = [ makeBinaryWrapper ];
