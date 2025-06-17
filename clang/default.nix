@@ -40,6 +40,8 @@ stdenvNoCC.mkDerivation {
     if [ ! -f hello.exe ]; then
       echo "hello.exe not found!"
       exit 1
+    else
+      echo "found hello.exe!"
     fi
   '';
 
