@@ -36,8 +36,10 @@ stdenvNoCC.mkDerivation {
     echo "linking..."
     $out/bin/lld-link "$TMPDIR"/*.obj -out:hello.exe
 
+    echo "checking..."
     if [ ! -f hello.exe ]; then
       echo "hello.exe not found!"
+      exit 1
     fi
   '';
 
