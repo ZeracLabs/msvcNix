@@ -1,10 +1,11 @@
 {
   lib,
   stdenvNoCC,
-  python3,
+  replaceVars,
   fetchFromGitHub,
   nix-update-script,
   makeBinaryWrapper,
+  python3,
   msitools,
   git,
   cacert,
@@ -25,25 +26,30 @@ stdenvNoCC.mkDerivation {
   };
 
   patches = [
-    ./install.patch
+    # Patch up the paths for various programs
+    (replaceVars ./interpreters.patch {
+      MSIEXEC = lib.getExe' msitools "msiexec";
+      MSIEXTRACT = lib.getExe' msitools "msiextract";
+      GIT = lib.getExe git;
+      WINE = lib.getExe wine64;
+    })
+
+    # 1. Enable shopt glob extensions
+    # 2. Put the tmp file into $TMPDIR
+    # 3. Copy everything in the wrapper directory except the wrapper that will be created.
+    # 4. Substitute in Wine's executable path
+    # 5. Output wine stdout for diagnostics
+    #
+    # For some reason I get permission denied if #3 is not done.
+    (replaceVars ./install.patch {
+      WINE = lib.getExe wine64;
+    })
+
+    # For some reason this tries to look up "echo" with /usr/bin/env. Which doesn't work on Nix.
+    # but it's a coreutil so it's always avaliable.
+    # I also enable `set -euo pipefail` just in case.
+    ./msvcenv.patch
   ];
-
-  postPatch = ''
-    substituteInPlace "vsdownload.py" \
-      --replace-fail "msiexec" ${lib.getExe' msitools "msiexec"} \
-      --replace-fail "msiextract" ${lib.getExe' msitools "msiextract"} \
-      --replace-fail "git" ${lib.getExe git}
-
-    substituteInPlace "install.sh" \
-      --replace-fail "\$(command -v wine64 || command -v wine)" ${lib.getExe wine64}
-
-    substituteInPlace "wrappers/wine-msvc.sh" \
-      --replace-fail "\$(command -v wine64 || command -v wine || false)" ${lib.getExe wine64}
-
-    substituteInPlace "msvcenv-native.sh" \
-      --replace-fail "/usr/bin/env echo" "echo" \
-      --replace-fail "# lld-link, it's recommended to use -fuse-ld=lld.)" "set -euo pipefail"
-  '';
 
   nativeBuildInputs = [ makeBinaryWrapper ];
   buildInputs = [
