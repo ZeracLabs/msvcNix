@@ -16,7 +16,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     dontBuild = true;
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-iGy9PTNyz/8uqZomOcliIIrJ2CveYWrhyoedS3U5n0k=";
+    outputHash = "sha256-tEf7GTFvPAxRaPAkAxB7gOfYwqcH1YmqAqJf79j1SOs=";
 
     installPhase = ''
       mkdir -p "$out"
